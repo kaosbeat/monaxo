@@ -2,6 +2,8 @@
 
 import time, random, threading, monome, sched
 import rtmidi
+import loop16
+from seq16 import Seq16
 from monome import Monome
 
 # try to find a monome (you can skip this if you already know the host/port)
@@ -29,19 +31,22 @@ class Clock:
 
 	def runclockedstuff(self):
 		self.s.enter(500, 1, runclockedstuff, ())
-		return 'clockevent'
+		print 'clockevent'
 
 
 clock = Clock()
 
 
 #config
-#row1 = 'seq16'
-monomeRowConfig =  ['seq16', 'loop16', 'toggle16','seq16', 'loop16', 'toggle16','seq16', 'loop16']
 
-monomeState = [
+m.monomeRowConfig =  ['none', 'none', 'none','none', 'loop16', 'toggle16','seq16', 'loop16']
+m.r0 = Seq16(m,0,0)
+m.r1 = Seq16(m,1,1)
 
-				]
+
+# m.monomeState = [
+
+# 				]
 
 def note_on(channel, note, velocity):
 	print channel
@@ -55,25 +60,33 @@ def note_off(channel, note):
 
 
 def keypressed(x, y, s):
+	if y == 0:
+		m.r0.dostuff(x,y,s)
+	if y == 1:
+		m.r1.dostuff(x,y,s)
+	if y == 2:
+		m.r0.dostuff(x,y,s)
+	if y == 3:
+		m.r1.dostuff(x,y,s)
 
-	rowType = monomeRowConfig[y]
-	if s == 1:
-		if rowType == 'seq16':
-			if  m.get_led(x,y) == 1:
-				m.led_set(x, y, 1 )
-			else:
-				m.led_set(x, y, 0 )
-		if rowType == 'loop16':
-			note_on(0x99,60, 112)
-			m.led_row(x,y,0xff, 0xff)
+	# rowType = m.monomeRowConfig[y]
+	# if s == 1:
+	# 	if rowType == 'seq16':
+	# 		if  m.get_led(x,y) == 1:
+	# 			m.led_set(x, y, 1 )
+	# 		else:
+	# 			m.led_set(x, y, 0 )
+	# 	if rowType == 'loop16':
+	# 		note_on(0x99,60, 112)
+	# 		m.led_row(x,y,0xff, 0xff)
 
 
-	else:
-		# if rowType == 'seq16':
+	# else:
+	# 	# if rowType == 'seq16':
 
-		if rowType == '`loop16':
-			note_off(0x99, 60)
-			m.led_row(x,y,0x00, 0x00)
+	# 	if rowType == '`loop16':
+	# 		note_off(0x99, 60)
+	# 		m.led_row(x,y,0x00, 0x00)
 
 print(clock.runclockedstuff)
 
